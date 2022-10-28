@@ -1,15 +1,79 @@
 const express  = require('express');
-
 const router = express.Router();
+const User  = require('../models/user')
+const bcrypt = require('bcrypt')
+
+
 
 
 router.get('/login', (req, res)=>{
-   res.send('Login Page')
+   res.render('login')
 })
 
 router.get('/register', (req, res)=>{
-    res.send('Regiater Page')
+    res.render('register')
 }
 )
+
+router.post('/register',(req, res)=>{
+
+    const {name , email, password, password2, roll} = req.body;
+    const errors= [];
+    if(!name || !email || !password|| !password2 ){
+        errors.push({msg: 'please enter all fields'})
+    }
+    if(password.length <6){
+        errors.push({msg: 'please enter valid password'})
+    }
+    if(password != password2){
+        errors.push({msg: 'password dont match'})
+    }
+    if(errors.length >0){
+        res.render('register', {
+           errors,
+           name,
+           email,
+           roll,
+           password,
+           password2 
+        })
+        
+    }else{
+        //validation passed 
+        User.findOne({email: email})
+        .then(user=>{
+            
+            
+            if(user){
+                //user already registered
+                errors.push({msg: 'User already registered'})
+                res.render('register',  {
+                    errors,
+                    name,
+                    email,
+                    roll,
+                    password,
+                    password2 
+                 })
+            }
+            else{
+                //user registering
+                const newUser =  new User({
+                    name,
+                    email,
+                    roll,
+                    password,
+                    
+                })
+                newUser.save();
+                console.log(newUser)
+                res.render('register')
+            }
+        })
+        .catch()
+    }
+    
+
+})
 
 module.exports = router
