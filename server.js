@@ -8,6 +8,9 @@ const PORT  = process.env.PORT || 5080
 
 const app = express();
 
+// Passport Config
+require('./config/passport')(passport);
+
 //databse
 const db = require('./config/keys').StringURI
 //connect
